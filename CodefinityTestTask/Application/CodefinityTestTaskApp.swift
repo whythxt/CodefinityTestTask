@@ -1,10 +1,15 @@
+import ComposableArchitecture
 import SwiftUI
 
 @main
 struct CodefinityTestTaskApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SummaryView(
+                store: Store(initialState: SummaryFeature.State()) {
+                    SummaryFeature()
+                }
+            )
         }
     }
 }

@@ -3,6 +3,10 @@ import SwiftUI
 struct CustomSlider: View {
     @Binding var value: Double
     var range: ClosedRange<Double> = 0...1
+    var onDragStart: () -> Void = {}
+    var onDragEnd: () -> Void = {}
+
+    @State private var isDragging: Bool = false
 
     var body: some View {
         GeometryReader { geometry in
@@ -27,8 +31,16 @@ struct CustomSlider: View {
                     .gesture(
                         DragGesture(minimumDistance: 0)
                             .onChanged { gesture in
+                                if !isDragging {
+                                    isDragging = true
+                                    onDragStart()
+                                }
                                 let newValue = Double(gesture.location.x / usableWidth) * (range.upperBound - range.lowerBound) + range.lowerBound
                                 value = min(max(newValue, range.lowerBound), range.upperBound)
+                            }
+                            .onEnded { _ in
+                                isDragging = false
+                                onDragEnd()
                             }
                     )
             }
