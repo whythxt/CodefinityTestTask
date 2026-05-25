@@ -80,7 +80,10 @@ private extension SummaryView {
 
     var progressBar: some View {
         HStack(spacing: 8) {
-            Text(store.formattedCurrentTime)
+            ZStack(alignment: .trailing) {
+                Text("00:00").hidden()
+                Text(store.formattedCurrentTime)
+            }
 
             CustomSlider(
                 value: Binding(
@@ -90,7 +93,10 @@ private extension SummaryView {
                 onDragEnd: { store.send(.sliderDragEnded) }
             )
 
-            Text(store.formattedDuration)
+            ZStack(alignment: .leading) {
+                Text("00:00").hidden()
+                Text(store.formattedDuration)
+            }
         }
         .font(.caption)
         .foregroundStyle(.textSecondary)

@@ -44,9 +44,7 @@ struct AudioPlayerFeature {
 
             case let .load(url):
                 state.isLoaded = false
-                state.isPlaying = false
                 state.currentTime = 0
-                state.duration = 0
                 state.isSeeking = false
                 state.errorMessage = nil
 

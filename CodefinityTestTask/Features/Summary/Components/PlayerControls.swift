@@ -11,9 +11,14 @@ struct PlayerControls: View {
     var body: some View {
         HStack(spacing: 30) {
             controlButton(icon: "backward.end.fill", action: onPrevious)
+
             controlButton(icon: "gobackward.5", action: onBackward)
+
             controlButton(icon: playButtonIcon, action: onPlayPause)
+                .frame(width: 30)
+
             controlButton(icon: "goforward.10", action: onForward)
+            
             controlButton(icon: "forward.end.fill", action: onNext)
         }
         .padding(.top, 20)

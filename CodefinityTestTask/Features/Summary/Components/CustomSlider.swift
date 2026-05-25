@@ -28,24 +28,27 @@ struct CustomSlider: View {
                     .fill(Color.appBlue)
                     .frame(width: thumbSize, height: thumbSize)
                     .offset(x: fillWidth)
-                    .gesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged { gesture in
-                                if !isDragging {
-                                    isDragging = true
-                                    onDragStart()
-                                }
-                                let newValue = Double(gesture.location.x / usableWidth) * (range.upperBound - range.lowerBound) + range.lowerBound
-                                value = min(max(newValue, range.lowerBound), range.upperBound)
-                            }
-                            .onEnded { _ in
-                                isDragging = false
-                                onDragEnd()
-                            }
-                    )
+                    .gesture(dragGesture(width: usableWidth))
             }
         }
         .frame(height: 16)
+    }
+
+    private func dragGesture(width: CGFloat) -> some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { gesture in
+                if !isDragging {
+                    isDragging = true
+                    onDragStart()
+                }
+
+                let newValue = Double(gesture.location.x / width) * (range.upperBound - range.lowerBound) + range.lowerBound
+                value = min(max(newValue, range.lowerBound), range.upperBound)
+            }
+            .onEnded { _ in
+                isDragging = false
+                onDragEnd()
+            }
     }
 }
 

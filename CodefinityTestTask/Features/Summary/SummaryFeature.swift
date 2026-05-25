@@ -35,11 +35,11 @@ struct SummaryFeature {
         }
 
         var formattedCurrentTime: String {
-            Duration.seconds(displayedCurrentTime).formatted(.time(pattern: .minuteSecond))
+            Duration.seconds(displayedCurrentTime).formatted(.time(pattern: .minuteSecond(padMinuteToLength: 2)))
         }
 
         var formattedDuration: String {
-            Duration.seconds(audio.duration).formatted(.time(pattern: .minuteSecond))
+            Duration.seconds(audio.duration).formatted(.time(pattern: .minuteSecond(padMinuteToLength: 2)))
         }
 
         var speedLabel: String {
@@ -107,15 +107,18 @@ struct SummaryFeature {
                 return .none
 
             case .nextChapterTapped:
-                guard state.canGoNext else { return .none }
+                guard state.canGoNext else {
+                    return .send(.audio(.seek(state.audio.duration)))
+                }
+
                 state.currentChapterIndex += 1
                 return loadCurrentChapter(in: &state, autoPlay: state.audio.isPlaying)
 
             case .previousChapterTapped:
                 guard state.canGoPrevious else {
-                    state.audio.currentTime = 0
-                    return .none
+                    return .send(.audio(.seek(0)))
                 }
+
                 state.currentChapterIndex -= 1
                 return loadCurrentChapter(in: &state, autoPlay: state.audio.isPlaying)
 

@@ -117,15 +117,17 @@ actor AudioPlayerActor {
     // MARK: Observers
 
     private func installPeriodicObserver(on player: AVPlayer) {
-        let interval = CMTime(seconds: 0.25, preferredTimescale: 600)
+        let interval = CMTime(seconds: 1.0 / 60.0, preferredTimescale: 600)
 
         timeObserverToken = player.addPeriodicTimeObserver(
             forInterval: interval,
             queue: .main
         ) { [weak self] time in
             guard let self else { return }
+
             let current = time.seconds
             guard !current.isNaN else { return }
+
             Task { await self.broadcastProgress(current: current) }
         }
     }
