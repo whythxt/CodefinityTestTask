@@ -99,6 +99,14 @@ struct AudioPlayerFeatureTests {
         }
     }
 
+    @Test func progressUpdated_ignoredWhileSeeking() async throws {
+        var state = AudioPlayerFeature.State()
+        state.isSeeking = true
+
+        let store = makeStore(initialState: state)
+        await store.send(.progressUpdated(25))
+    }
+
     @Test func finished_clearsIsPlaying() async throws {
         var state = AudioPlayerFeature.State()
         state.isPlaying = true

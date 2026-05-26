@@ -100,7 +100,12 @@ struct SummaryFeature {
                 state.book = book
                 state.chapters = chapters
                 state.isLoading = false
-                guard let first = chapters.first else { return .none }
+
+                guard let first = chapters.first else {
+                    state.errorMessage = "No chapters found."
+                    return .none
+                }
+
                 state.autoPlayOnLoad = false
                 state.dragProgress = nil
                 return .send(.audio(.load(first.audioURL)))

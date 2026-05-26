@@ -117,7 +117,7 @@ actor AudioPlayerActor {
     // MARK: Observers
 
     private func installPeriodicObserver(on player: AVPlayer) {
-        let interval = CMTime(seconds: 1.0 / 60.0, preferredTimescale: 600)
+        let interval = CMTime(seconds: 1.0 / 30.0, preferredTimescale: 600)
 
         timeObserverToken = player.addPeriodicTimeObserver(
             forInterval: interval,

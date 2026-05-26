@@ -26,8 +26,7 @@ extension BookClient: DependencyKey {
                 let book = Book(
                     id: "local",
                     title: "The Eskimo Twins",
-                    author: "Lucy Fitch Perkins",
-                    description: ""
+                    author: "Lucy Fitch Perkins"
                 )
 
                 return (book, chapters)
@@ -38,7 +37,7 @@ extension BookClient: DependencyKey {
     static let testValue = BookClient(
         fetchBook: {
             (
-                Book(id: "test", title: "Test", author: "Test", description: ""),
+                Book(id: "test", title: "Test", author: "Test"),
                 []
             )
         }

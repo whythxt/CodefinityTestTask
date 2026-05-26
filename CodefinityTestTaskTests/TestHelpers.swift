@@ -24,7 +24,7 @@ extension AudioPlayerClient {
 }
 
 extension Book {
-    static let stub = Book(id: "local", title: "The Eskimo Twins", author: "Lucy Fitch Perkins", description: "")
+    static let stub = Book(id: "local", title: "The Eskimo Twins", author: "Lucy Fitch Perkins")
 }
 
 extension Chapter {

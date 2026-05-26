@@ -52,13 +52,14 @@ struct SummaryFeatureTests {
         }
     }
 
-    @Test func bookFetched_withEmptyChapters_doesNotLoadAudio() async throws {
+    @Test func bookFetched_withEmptyChapters_setsErrorMessage() async throws {
         let store = makeStore(fetchBook: { (.stub, []) })
         await store.send(.onAppear)
         await store.receive(\.bookFetched) {
             $0.book = .stub
             $0.chapters = []
             $0.isLoading = false
+            $0.errorMessage = "No chapters found."
         }
     }
 
@@ -95,6 +96,23 @@ struct SummaryFeatureTests {
         }
     }
 
+    @Test func previousChapterTapped_atFirstChapter_seeksToStart() async throws {
+        var state = SummaryFeature.State()
+        state.chapters = chapters
+        state.currentChapterIndex = 0
+        state.audio.currentTime = 30
+        let store = makeStore(initialState: state)
+
+        await store.send(.previousChapterTapped)
+        await store.receive(\.audio.seek) {
+            $0.audio.currentTime = 0
+            $0.audio.isSeeking = true
+        }
+        await store.receive(\.audio.seekCompleted) {
+            $0.audio.isSeeking = false
+        }
+    }
+
     @Test func seekForwardTapped_addsTime() async throws {
         var state = SummaryFeature.State()
         state.audio.currentTime = 20
@@ -104,6 +122,21 @@ struct SummaryFeatureTests {
         await store.send(.seekForwardTapped)
         await store.receive(\.audio.seek) {
             $0.audio.currentTime = 30
+            $0.audio.isSeeking = true
+        }
+        await store.receive(\.audio.seekCompleted) {
+            $0.audio.isSeeking = false
+        }
+    }
+
+    @Test func seekBackwardTapped_clampsToZero() async throws {
+        var state = SummaryFeature.State()
+        state.audio.currentTime = 3
+        let store = makeStore(initialState: state)
+
+        await store.send(.seekBackwardTapped)
+        await store.receive(\.audio.seek) {
+            $0.audio.currentTime = 0
             $0.audio.isSeeking = true
         }
         await store.receive(\.audio.seekCompleted) {
@@ -136,6 +169,17 @@ struct SummaryFeatureTests {
 
     @Test func speedTapped_advancesToNextStep() async throws {
         let store = makeStore()
+        await store.send(.speedTapped)
+        await store.receive(\.audio.setRate) {
+            $0.audio.playbackRate = 1.25
+        }
+    }
+
+    @Test func speedTapped_fallsBackToSecondStepForUnknownRate() async throws {
+        var state = SummaryFeature.State()
+        state.audio.playbackRate = 1.1
+        let store = makeStore(initialState: state)
+
         await store.send(.speedTapped)
         await store.receive(\.audio.setRate) {
             $0.audio.playbackRate = 1.25
