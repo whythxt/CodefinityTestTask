@@ -57,7 +57,7 @@ private extension SummaryView {
         Image("bookCover")
             .resizable()
             .scaledToFill()
-            .frame(width: 230, height: 350)
+            .frame(width: 240, height: 350)
             .clipShape(.rect(cornerRadius: 8))
     }
 

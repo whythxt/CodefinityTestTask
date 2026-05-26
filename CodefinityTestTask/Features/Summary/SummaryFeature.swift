@@ -52,6 +52,10 @@ struct SummaryFeature {
 
         var canGoNext: Bool { currentChapterIndex < chapters.count - 1 }
         var canGoPrevious: Bool { currentChapterIndex > 0 }
+
+        var isBookFinished: Bool {
+            !canGoNext && audio.duration > 0 && audio.currentTime >= audio.duration
+        }
     }
 
     enum Action {

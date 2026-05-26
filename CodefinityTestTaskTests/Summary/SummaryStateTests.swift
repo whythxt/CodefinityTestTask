@@ -1,0 +1,141 @@
+import Foundation
+import Testing
+
+@testable import CodefinityTestTask
+
+@Suite("SummaryFeature.State")
+struct SummaryStateTests {
+    @Test func chapterLabel_emptyWithNoChapters() {
+        #expect(SummaryFeature.State().chapterLabel == "")
+    }
+
+    @Test func chapterLabel_formatsIndexAndCount() {
+        var state = SummaryFeature.State()
+        state.chapters = .stubs
+        state.currentChapterIndex = 1
+
+        #expect(state.chapterLabel == "Key point 2 of 3")
+    }
+
+    @Test func isDragging_falseByDefault() {
+        #expect(!SummaryFeature.State().isDragging)
+    }
+
+    @Test func isDragging_trueWhenDragProgressSet() {
+        var state = SummaryFeature.State()
+        state.dragProgress = 0.5
+
+        #expect(state.isDragging)
+    }
+
+    @Test func sliderProgress_usesAudioProgress() {
+        var state = SummaryFeature.State()
+        state.audio.currentTime = 30
+        state.audio.duration = 60
+        
+        #expect(state.sliderProgress == 0.5)
+    }
+
+    @Test func sliderProgress_prefersDragProgressOverAudio() {
+        var state = SummaryFeature.State()
+        state.audio.currentTime = 30
+        state.audio.duration = 60
+        state.dragProgress = 0.8
+        #expect(state.sliderProgress == 0.8)
+    }
+
+    @Test func displayedCurrentTime_usesAudioTimeWhenNotDragging() {
+        var state = SummaryFeature.State()
+        state.audio.currentTime = 42
+        #expect(state.displayedCurrentTime == 42)
+    }
+
+    @Test func displayedCurrentTime_usesDragProgressWhileDragging() {
+        var state = SummaryFeature.State()
+        state.audio.currentTime = 10
+        state.audio.duration = 100
+        state.dragProgress = 0.5
+        #expect(state.displayedCurrentTime == 50)
+    }
+
+    @Test func formattedCurrentTime_zeroPadsMinutes() {
+        var state = SummaryFeature.State()
+        state.audio.currentTime = 360
+        #expect(state.formattedCurrentTime == "06:00")
+    }
+
+    @Test func formattedDuration_zeroPadsMinutes() {
+        var state = SummaryFeature.State()
+        state.audio.duration = 360
+        #expect(state.formattedDuration == "06:00")
+    }
+
+    @Test func canGoNext_trueWhenNotAtLastChapter() {
+        var state = SummaryFeature.State()
+        state.chapters = .stubs
+        state.currentChapterIndex = 1
+        #expect(state.canGoNext)
+    }
+
+    @Test func canGoNext_falseAtLastChapter() {
+        var state = SummaryFeature.State()
+        state.chapters = .stubs
+        state.currentChapterIndex = 2
+        #expect(!state.canGoNext)
+    }
+
+    @Test func canGoPrevious_trueWhenNotAtFirstChapter() {
+        var state = SummaryFeature.State()
+        state.chapters = .stubs
+        state.currentChapterIndex = 1
+        #expect(state.canGoPrevious)
+    }
+
+    @Test func canGoPrevious_falseAtFirstChapter() {
+        #expect(!SummaryFeature.State().canGoPrevious)
+    }
+
+    @Test func isBookFinished_trueAtLastChapterEnd() {
+        var state = SummaryFeature.State()
+        state.chapters = .stubs
+        state.currentChapterIndex = 2
+        state.audio.currentTime = 60
+        state.audio.duration = 60
+        #expect(state.isBookFinished)
+    }
+
+    @Test func isBookFinished_falseWhenTimeHasNotReachedEnd() {
+        var state = SummaryFeature.State()
+        state.chapters = .stubs
+        state.currentChapterIndex = 2
+        state.audio.currentTime = 30
+        state.audio.duration = 60
+        #expect(!state.isBookFinished)
+    }
+
+    @Test func isBookFinished_falseWhenChaptersRemain() {
+        var state = SummaryFeature.State()
+        state.chapters = .stubs
+        state.currentChapterIndex = 1
+        state.audio.currentTime = 60
+        state.audio.duration = 60
+        #expect(!state.isBookFinished)
+    }
+
+    @Test func playButtonIcon_showsPlayWhenNotPlaying() {
+        #expect(SummaryFeature.State().playButtonIcon == "play.fill")
+    }
+
+    @Test func playButtonIcon_showsPauseWhenPlaying() {
+        var state = SummaryFeature.State()
+        state.audio.isPlaying = true
+        #expect(state.playButtonIcon == "pause.fill")
+    }
+
+    @Test func speedLabel_formatsRate() {
+        var state = SummaryFeature.State()
+        state.audio.playbackRate = 1.5
+        let expected = "Speed x\(1.5.formatted(.number.precision(.fractionLength(0...2))))"
+        #expect(state.speedLabel == expected)
+    }
+}

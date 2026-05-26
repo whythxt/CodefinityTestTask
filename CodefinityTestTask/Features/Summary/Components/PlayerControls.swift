@@ -26,8 +26,10 @@ struct PlayerControls: View {
 
     private func controlButton(icon: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
+            let playBtn = icon == "play.fill" || icon == "pause.fill"
+
             Image(systemName: icon)
-                .font(.title)
+                .font(playBtn ? .largeTitle : .title2)
                 .foregroundStyle(.appBlack)
         }
         .buttonStyle(.tapScale)
