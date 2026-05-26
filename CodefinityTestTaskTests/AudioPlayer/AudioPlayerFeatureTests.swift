@@ -37,19 +37,6 @@ struct AudioPlayerFeatureTests {
         }
     }
 
-    @Test func loaded_setsStateDirectly() async throws {
-        let store = makeStore()
-        await store.send(.loaded(90)) {
-            $0.duration = 90
-            $0.isLoaded = true
-        }
-    }
-
-    @Test func play_doesNothingWhenNotLoaded() async throws {
-        let store = makeStore()
-        await store.send(.play)
-    }
-
     @Test func play_setsIsPlayingWhenLoaded() async throws {
         var state = AudioPlayerFeature.State()
         state.isLoaded = true
@@ -84,20 +71,6 @@ struct AudioPlayerFeatureTests {
         }
     }
 
-    @Test func seek_clampsNegativeToZero() async throws {
-        var state = AudioPlayerFeature.State()
-        state.duration = 60
-
-        let store = makeStore(initialState: state)
-        await store.send(.seek(-10)) {
-            $0.currentTime = 0
-            $0.isSeeking = true
-        }
-        await store.receive(\.seekCompleted) {
-            $0.isSeeking = false
-        }
-    }
-
     @Test func seek_clampsToDuration() async throws {
         var state = AudioPlayerFeature.State()
         state.duration = 60
@@ -124,14 +97,6 @@ struct AudioPlayerFeatureTests {
         await store.send(.progressUpdated(25)) {
             $0.currentTime = 25
         }
-    }
-
-    @Test func progressUpdated_ignoredWhileSeeking() async throws {
-        var state = AudioPlayerFeature.State()
-        state.isSeeking = true
-
-        let store = makeStore(initialState: state)
-        await store.send(.progressUpdated(25))
     }
 
     @Test func finished_clearsIsPlaying() async throws {

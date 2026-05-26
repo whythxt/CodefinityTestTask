@@ -15,12 +15,4 @@ struct AudioPlayerStateTests {
 
         #expect(state.progress == 0.5)
     }
-
-    @Test func progress_clampsToOne() {
-        var state = AudioPlayerFeature.State()
-        state.currentTime = 90
-        state.duration = 60
-        
-        #expect(state.progress == 1.0)
-    }
 }

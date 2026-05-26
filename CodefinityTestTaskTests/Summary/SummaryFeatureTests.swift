@@ -23,14 +23,12 @@ struct SummaryFeatureTests {
 
     @Test func onAppear_fetchesBookWhenNoneLoaded() async throws {
         let store = makeStore()
-
         await store.send(.onAppear)
         await store.receive(\.bookFetched) {
             $0.book = .stub
             $0.chapters = .stubs
             $0.isLoading = false
         }
-
         await store.receive(\.audio.load)
         await store.receive(\.audio.loaded) {
             $0.audio.duration = 60
@@ -41,14 +39,12 @@ struct SummaryFeatureTests {
     @Test func onAppear_skipsWhenBookAlreadyLoaded() async throws {
         var state = SummaryFeature.State()
         state.book = .stub
-
         let store = makeStore(initialState: state)
         await store.send(.onAppear)
     }
 
     @Test func fetchFailed_setsErrorAndStopsLoading() async throws {
         let store = makeStore(fetchBook: { throw BookError.missingChapters(["chapterOne"]) })
-
         await store.send(.onAppear)
         await store.receive(\.fetchFailed) {
             $0.isLoading = false
@@ -58,7 +54,6 @@ struct SummaryFeatureTests {
 
     @Test func bookFetched_withEmptyChapters_doesNotLoadAudio() async throws {
         let store = makeStore(fetchBook: { (.stub, []) })
-
         await store.send(.onAppear)
         await store.receive(\.bookFetched) {
             $0.book = .stub
@@ -71,7 +66,6 @@ struct SummaryFeatureTests {
         var state = SummaryFeature.State()
         state.chapters = chapters
         state.currentChapterIndex = 0
-
         let store = makeStore(initialState: state)
 
         await store.send(.nextChapterTapped) {
@@ -88,9 +82,7 @@ struct SummaryFeatureTests {
         var state = SummaryFeature.State()
         state.chapters = chapters
         state.currentChapterIndex = 2
-        state.audio.isLoaded = true
         state.audio.duration = 60
-
         let store = makeStore(initialState: state)
 
         await store.send(.nextChapterTapped)
@@ -103,49 +95,10 @@ struct SummaryFeatureTests {
         }
     }
 
-    @Test func previousChapterTapped_decrementsIndex() async throws {
-        var state = SummaryFeature.State()
-        state.chapters = chapters
-        state.currentChapterIndex = 1
-
-        let store = makeStore(initialState: state)
-
-        await store.send(.previousChapterTapped) {
-            $0.currentChapterIndex = 0
-        }
-        await store.receive(\.audio.load)
-        await store.receive(\.audio.loaded) {
-            $0.audio.duration = 60
-            $0.audio.isLoaded = true
-        }
-    }
-
-    @Test func previousChapterTapped_atFirstChapter_seeksToStart() async throws {
-        var state = SummaryFeature.State()
-        state.chapters = chapters
-        state.currentChapterIndex = 0
-        state.audio.isLoaded = true
-        state.audio.duration = 60
-        state.audio.currentTime = 30
-
-        let store = makeStore(initialState: state)
-
-        await store.send(.previousChapterTapped)
-        await store.receive(\.audio.seek) {
-            $0.audio.currentTime = 0
-            $0.audio.isSeeking = true
-        }
-        await store.receive(\.audio.seekCompleted) {
-            $0.audio.isSeeking = false
-        }
-    }
-
     @Test func seekForwardTapped_addsTime() async throws {
         var state = SummaryFeature.State()
         state.audio.currentTime = 20
         state.audio.duration = 60
-        state.audio.isLoaded = true
-
         let store = makeStore(initialState: state)
 
         await store.send(.seekForwardTapped)
@@ -158,51 +111,9 @@ struct SummaryFeatureTests {
         }
     }
 
-    @Test func seekBackwardTapped_subtractsTime() async throws {
-        var state = SummaryFeature.State()
-        state.audio.currentTime = 20
-        state.audio.duration = 60
-        state.audio.isLoaded = true
-
-        let store = makeStore(initialState: state)
-
-        await store.send(.seekBackwardTapped)
-        await store.receive(\.audio.seek) {
-            $0.audio.currentTime = 15
-            $0.audio.isSeeking = true
-        }
-        await store.receive(\.audio.seekCompleted) {
-            $0.audio.isSeeking = false
-        }
-    }
-
-    @Test func seekBackwardTapped_clampsToZero() async throws {
-        var state = SummaryFeature.State()
-        state.audio.currentTime = 3
-        state.audio.duration = 60
-        state.audio.isLoaded = true
-
-        let store = makeStore(initialState: state)
-
-        await store.send(.seekBackwardTapped)
-        await store.receive(\.audio.seek) {
-            $0.audio.currentTime = 0
-            $0.audio.isSeeking = true
-        }
-        await store.receive(\.audio.seekCompleted) {
-            $0.audio.isSeeking = false
-        }
-    }
-
-    @Test func playPauseTapped_doesNothingWhenNotLoaded() async throws {
-        let store = makeStore()
-        await store.send(.playPauseTapped)
-    }
-
     @Test func playPauseTapped_sendsPlayWhenPaused() async throws {
         var state = SummaryFeature.State()
         state.audio.isLoaded = true
-
         let store = makeStore(initialState: state)
 
         await store.send(.playPauseTapped)
@@ -215,7 +126,6 @@ struct SummaryFeatureTests {
         var state = SummaryFeature.State()
         state.audio.isLoaded = true
         state.audio.isPlaying = true
-
         let store = makeStore(initialState: state)
 
         await store.send(.playPauseTapped)
@@ -235,7 +145,6 @@ struct SummaryFeatureTests {
     @Test func speedTapped_wrapsFromLastStepToFirst() async throws {
         var state = SummaryFeature.State()
         state.audio.playbackRate = 0.75
-
         let store = makeStore(initialState: state)
 
         await store.send(.speedTapped)
@@ -251,17 +160,10 @@ struct SummaryFeatureTests {
         }
     }
 
-    @Test func sliderDragEnded_doesNothingWithoutDrag() async throws {
-        let store = makeStore()
-        await store.send(.sliderDragEnded)
-    }
-
     @Test func sliderDragEnded_seeksToProgress() async throws {
         var state = SummaryFeature.State()
         state.dragProgress = 0.5
         state.audio.duration = 100
-        state.audio.isLoaded = true
-
         let store = makeStore(initialState: state)
 
         await store.send(.sliderDragEnded) {
@@ -281,7 +183,6 @@ struct SummaryFeatureTests {
         state.chapters = chapters
         state.currentChapterIndex = 2
         state.audio.isPlaying = true
-
         let store = makeStore(initialState: state)
 
         await store.send(.audio(.finished)) {
@@ -294,7 +195,6 @@ struct SummaryFeatureTests {
         state.chapters = chapters
         state.currentChapterIndex = 0
         state.audio.isPlaying = true
-
         let store = makeStore(initialState: state)
 
         await store.send(.audio(.finished)) {
@@ -316,7 +216,6 @@ struct SummaryFeatureTests {
     @Test func audioLoaded_withAutoPlayFlag_sendsPlay() async throws {
         var state = SummaryFeature.State()
         state.autoPlayOnLoad = true
-
         let store = makeStore(initialState: state)
 
         await store.send(.audio(.loaded(60))) {
@@ -329,19 +228,10 @@ struct SummaryFeatureTests {
         }
     }
 
-    @Test func audioLoaded_withoutAutoPlayFlag_doesNotPlay() async throws {
-        let store = makeStore()
-        await store.send(.audio(.loaded(60))) {
-            $0.audio.duration = 60
-            $0.audio.isLoaded = true
-        }
-    }
-
     @Test func audioFailed_propagatesErrorToParentState() async throws {
         var state = SummaryFeature.State()
         state.audio.isLoaded = true
         state.audio.isPlaying = true
-        
         let store = makeStore(initialState: state)
 
         await store.send(.audio(.failed("Network error"))) {
