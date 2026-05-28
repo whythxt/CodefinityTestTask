@@ -11,7 +11,7 @@ struct SummaryStateTests {
 
     @Test func chapterLabel_formatsIndexAndCount() {
         var state = SummaryFeature.State()
-        state.chapters = .stubs
+        state.book = .stub
         state.currentChapterIndex = 1
 
         #expect(state.chapterLabel == "Key point 2 of 3")
@@ -52,7 +52,7 @@ struct SummaryStateTests {
 
     @Test func canGoNext_trueWhenNotAtLastChapter() {
         var state = SummaryFeature.State()
-        state.chapters = .stubs
+        state.book = .stub
         state.currentChapterIndex = 1
 
         #expect(state.canGoNext)
@@ -60,7 +60,7 @@ struct SummaryStateTests {
 
     @Test func canGoNext_falseAtLastChapter() {
         var state = SummaryFeature.State()
-        state.chapters = .stubs
+        state.book = .stub
         state.currentChapterIndex = 2
 
         #expect(!state.canGoNext)
@@ -68,7 +68,7 @@ struct SummaryStateTests {
 
     @Test func isBookFinished_trueAtLastChapterEnd() {
         var state = SummaryFeature.State()
-        state.chapters = .stubs
+        state.book = .stub
         state.currentChapterIndex = 2
         state.audio.currentTime = 60
         state.audio.duration = 60
@@ -78,7 +78,7 @@ struct SummaryStateTests {
 
     @Test func isBookFinished_falseWhenTimeHasNotReachedEnd() {
         var state = SummaryFeature.State()
-        state.chapters = .stubs
+        state.book = .stub
         state.currentChapterIndex = 2
         state.audio.currentTime = 30
         state.audio.duration = 60

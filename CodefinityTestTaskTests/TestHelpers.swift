@@ -18,13 +18,14 @@ extension AudioPlayerClient {
             seek: seek,
             setRate: setRate,
             observeProgress: { AsyncStream { $0.finish() } },
-            observeFinish: { AsyncStream { $0.finish() } }
+            observeFinish: { AsyncThrowingStream { $0.finish() } }
         )
     }
 }
 
 extension Book {
-    static let stub = Book(id: "local", title: "The Eskimo Twins", author: "Lucy Fitch Perkins")
+    static let stub = Book(id: "local", title: "The Eskimo Twins", author: "Lucy Fitch Perkins", chapters: .stubs)
+    static let emptyStub = Book(id: "local", title: "The Eskimo Twins", author: "Lucy Fitch Perkins", chapters: [])
 }
 
 extension Chapter {

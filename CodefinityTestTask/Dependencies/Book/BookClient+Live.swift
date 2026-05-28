@@ -23,23 +23,19 @@ extension BookClient: DependencyKey {
 
                 guard missing.isEmpty else { throw BookError.missingChapters(missing) }
 
-                let book = Book(
+                return Book(
                     id: "local",
                     title: "The Eskimo Twins",
-                    author: "Lucy Fitch Perkins"
+                    author: "Lucy Fitch Perkins",
+                    chapters: chapters
                 )
-
-                return (book, chapters)
             }
         )
     }
 
     static let testValue = BookClient(
         fetchBook: {
-            (
-                Book(id: "test", title: "Test", author: "Test"),
-                []
-            )
+            Book(id: "test", title: "Test", author: "Test", chapters: [])
         }
     )
 }

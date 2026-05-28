@@ -2,7 +2,7 @@ import Dependencies
 import Foundation
 
 struct BookClient: Sendable {
-    var fetchBook: @Sendable () async throws -> (Book, [Chapter])
+    var fetchBook: @Sendable () async throws -> Book
 }
 
 enum BookError: Error, LocalizedError {

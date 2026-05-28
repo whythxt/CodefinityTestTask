@@ -7,11 +7,9 @@ import Testing
 @Suite("SummaryFeature")
 @MainActor
 struct SummaryFeatureTests {
-    let chapters: [Chapter] = .stubs
-
     private func makeStore(
         initialState: SummaryFeature.State? = nil,
-        fetchBook: @Sendable @escaping () async throws -> (Book, [Chapter]) = { (.stub, .stubs) }
+        fetchBook: @Sendable @escaping () async throws -> Book = { .stub }
     ) -> TestStore<SummaryFeature.State, SummaryFeature.Action> {
         TestStore(initialState: initialState ?? SummaryFeature.State()) {
             SummaryFeature()
@@ -26,7 +24,6 @@ struct SummaryFeatureTests {
         await store.send(.onAppear)
         await store.receive(\.bookFetched) {
             $0.book = .stub
-            $0.chapters = .stubs
             $0.isLoading = false
         }
         await store.receive(\.audio.load)
@@ -53,11 +50,10 @@ struct SummaryFeatureTests {
     }
 
     @Test func bookFetched_withEmptyChapters_setsErrorMessage() async throws {
-        let store = makeStore(fetchBook: { (.stub, []) })
+        let store = makeStore(fetchBook: { .emptyStub })
         await store.send(.onAppear)
         await store.receive(\.bookFetched) {
-            $0.book = .stub
-            $0.chapters = []
+            $0.book = .emptyStub
             $0.isLoading = false
             $0.errorMessage = "No chapters found."
         }
@@ -65,7 +61,7 @@ struct SummaryFeatureTests {
 
     @Test func nextChapterTapped_advancesIndex() async throws {
         var state = SummaryFeature.State()
-        state.chapters = chapters
+        state.book = .stub
         state.currentChapterIndex = 0
         let store = makeStore(initialState: state)
 
@@ -81,7 +77,7 @@ struct SummaryFeatureTests {
 
     @Test func nextChapterTapped_atLastChapter_seeksToEnd() async throws {
         var state = SummaryFeature.State()
-        state.chapters = chapters
+        state.book = .stub
         state.currentChapterIndex = 2
         state.audio.duration = 60
         let store = makeStore(initialState: state)
@@ -98,7 +94,7 @@ struct SummaryFeatureTests {
 
     @Test func previousChapterTapped_atFirstChapter_seeksToStart() async throws {
         var state = SummaryFeature.State()
-        state.chapters = chapters
+        state.book = .stub
         state.currentChapterIndex = 0
         state.audio.currentTime = 30
         let store = makeStore(initialState: state)
@@ -224,7 +220,7 @@ struct SummaryFeatureTests {
 
     @Test func audioFinished_doesNothingAtLastChapter() async throws {
         var state = SummaryFeature.State()
-        state.chapters = chapters
+        state.book = .stub
         state.currentChapterIndex = 2
         state.audio.isPlaying = true
         let store = makeStore(initialState: state)
@@ -236,7 +232,7 @@ struct SummaryFeatureTests {
 
     @Test func audioFinished_advancesAndAutoPlaysNextChapter() async throws {
         var state = SummaryFeature.State()
-        state.chapters = chapters
+        state.book = .stub
         state.currentChapterIndex = 0
         state.audio.isPlaying = true
         let store = makeStore(initialState: state)

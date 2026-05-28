@@ -6,7 +6,6 @@ struct SummaryFeature {
     @ObservableState
     struct State: Equatable {
         var book: Book?
-        var chapters: [Chapter] = []
         var currentChapterIndex = 0
         var isLoading = true
         var errorMessage: String?
@@ -14,6 +13,8 @@ struct SummaryFeature {
         var dragProgress: Double?
 
         var audio = AudioPlayerFeature.State()
+
+        var chapters: [Chapter] { book?.chapters ?? [] }
 
         var currentChapter: Chapter? {
             chapters.indices.contains(currentChapterIndex) ? chapters[currentChapterIndex] : nil
@@ -60,7 +61,7 @@ struct SummaryFeature {
 
     enum Action {
         case onAppear
-        case bookFetched(Book, [Chapter])
+        case bookFetched(Book)
         case fetchFailed(String)
         case nextChapterTapped
         case previousChapterTapped
@@ -89,19 +90,18 @@ struct SummaryFeature {
                 state.isLoading = true
                 return .run { send in
                     do {
-                        let (book, chapters) = try await bookClient.fetchBook()
-                        await send(.bookFetched(book, chapters))
+                        let book = try await bookClient.fetchBook()
+                        await send(.bookFetched(book))
                     } catch {
                         await send(.fetchFailed(error.localizedDescription))
                     }
                 }
 
-            case let .bookFetched(book, chapters):
+            case let .bookFetched(book):
                 state.book = book
-                state.chapters = chapters
                 state.isLoading = false
 
-                guard let first = chapters.first else {
+                guard let first = book.chapters.first else {
                     state.errorMessage = "No chapters found."
                     return .none
                 }
