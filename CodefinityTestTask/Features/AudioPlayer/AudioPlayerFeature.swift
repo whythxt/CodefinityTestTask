@@ -34,6 +34,8 @@ struct AudioPlayerFeature {
 
     @Dependency(\.audioPlayer) var audioPlayer
 
+    // ❓ Q11 [СПІВБЕСІДА]: Навіщо CancelID і `cancelInFlight: true` (load/seek/transport)?
+    // Що станеться при швидких повторних тапах без цього?
     nonisolated enum CancelID {
         case load, progress, finish, transport, seek
     }
@@ -65,6 +67,8 @@ struct AudioPlayerFeature {
                 )
 
             case let .loaded(duration):
+                // ❓ Q12 [СПІВБЕСІДА]: Тут стартують observeProgress/observeFinish.
+                // Що буде зі СТАРИМИ стрімами при завантаженні нової глави? Є витік?
                 state.duration = duration
                 state.isLoaded = true
                 return .merge(observeProgress(), observeFinish())

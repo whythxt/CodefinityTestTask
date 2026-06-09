@@ -4,6 +4,8 @@ import SwiftUI
 struct SummaryView: View {
     let store: StoreOf<SummaryFeature>
 
+    // ❓ Q9 [СПІВБЕСІДА]: selectedDisplay — локальний @State, не в TCA-стейті, а текстового
+    // режиму взагалі немає. Чому стан поза стором? Чи мав би бути в State?
     @State private var selectedDisplay: DisplayMode = .audio
     @Namespace private var toggleAnimation
 
@@ -70,6 +72,8 @@ private extension SummaryView {
                 .textCase(.uppercase)
                 .tracking(1)
 
+            // ❓ Q8 [СПІВБЕСІДА]: Текст саммарі захардкоджений, а в моделі Chapter немає поля
+            // тексту. Чому? Як зробив би «правильно» для реальних даних на кожен key point?
             Text("Design is not how a thing looks, but how it\n works")
                 .font(.subheadline)
                 .foregroundStyle(.appBlack)

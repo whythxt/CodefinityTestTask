@@ -18,6 +18,8 @@ extension AudioPlayerClient {
             seek: seek,
             setRate: setRate,
             observeProgress: { AsyncStream { $0.finish() } },
+            // ❓ Q14 [СПІВБЕСІДА]: Тип клієнта observeFinish — () -> AsyncStream<Void>,
+            // а тут AsyncThrowingStream. Це компілюється? Тести реально запускались?
             observeFinish: { AsyncThrowingStream { $0.finish() } }
         )
     }

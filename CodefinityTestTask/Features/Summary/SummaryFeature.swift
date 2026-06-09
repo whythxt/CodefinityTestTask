@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import Foundation
 
+// ❓ Q1 [СПІВБЕСІДА]: Чому обрав TCA, а не MVVM? Назви плюси і МІНУСИ TCA.
 @Reducer
 struct SummaryFeature {
     @ObservableState
@@ -76,9 +77,13 @@ struct SummaryFeature {
 
     @Dependency(\.bookClient) var bookClient
 
+    // ❓ Q10 [СПІВБЕСІДА]: Поясни порядок цього масиву і як працює цикл швидкостей
+    // (`% count`). Що робить `?? 0` при невідомій швидкості?
     private static let speedSteps: [Double] = [1.0, 1.25, 1.5, 1.75, 2.0, 0.5, 0.75]
 
     var body: some Reducer<State, Action> {
+        // ❓ Q2 [СПІВБЕСІДА]: Поясни розділення parent (Summary) і child (AudioPlayer)
+        // через Scope. Де межа відповідальності? Чому AudioPlayer окремо?
         Scope(state: \.audio, action: \.audio) {
             AudioPlayerFeature()
         }

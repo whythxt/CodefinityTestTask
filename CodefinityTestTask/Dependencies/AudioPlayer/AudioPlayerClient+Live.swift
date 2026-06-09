@@ -2,6 +2,8 @@ import AVFoundation
 import Dependencies
 import Foundation
 
+// ❓ Q3 [СПІВБЕСІДА]: Чому actor, а не клас? Яку конкретну проблему вирішує
+// (ключове слово в очікуваній відповіді — data race)?
 actor AudioPlayerActor {
     private var player: AVPlayer?
     private var currentItem: AVPlayerItem?
@@ -9,6 +11,7 @@ actor AudioPlayerActor {
     private var currentRate: Float = 1.0
     private var timeObserverToken: Any?
 
+    // ❓ Q5 [СПІВБЕСІДА]: Навіщо словник continuations по UUID? Коли реально буде >1 підписник?
     private var progressContinuations: [UUID: AsyncStream<(TimeInterval, TimeInterval)>.Continuation] = [:]
     private var finishContinuations: [UUID: AsyncStream<Void>.Continuation] = [:]
     private var finishObserverTask: Task<Void, Never>?
@@ -56,6 +59,8 @@ actor AudioPlayerActor {
         player?.pause()
     }
 
+    // ❓ Q7 [СПІВБЕСІДА]: seek обрізається (clamp) і ТУТ, і в редюсері AudioPlayerFeature.
+    // Навіщо двічі? Де має бути single source of truth?
     func seek(to time: TimeInterval) async {
         let clamped = max(0, min(time, duration))
 
@@ -76,6 +81,8 @@ actor AudioPlayerActor {
 
     // MARK: Streams
 
+    // ❓ Q4 [СПІВБЕСІДА]: Поясни весь міст actor → AsyncStream → TCA-ефект.
+    // Де реєстрація підписника, що робить onTermination?
     func makeProgressStream() -> AsyncStream<(TimeInterval, TimeInterval)> {
         let id = UUID()
 
@@ -117,8 +124,11 @@ actor AudioPlayerActor {
     // MARK: Observers
 
     private func installPeriodicObserver(on player: AVPlayer) {
+        // ❓ Q6 [СПІВБЕСІДА]: 30 fps, кожен тік → екшен у TCA-стор. Яка вартість для слайдера?
+        // Як би оптимізував (throttle / частота / порівняння)?
         let interval = CMTime(seconds: 1.0 / 30.0, preferredTimescale: 600)
 
+        // ❓ Q13 [СПІВБЕСІДА]: Що РЕАЛЬНО дає `[weak self]` тут (на акторі)? Чому не карго-культ?
         timeObserverToken = player.addPeriodicTimeObserver(
             forInterval: interval,
             queue: .main

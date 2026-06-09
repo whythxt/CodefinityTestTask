@@ -4,6 +4,8 @@ import Dependencies
 extension BookClient: DependencyKey {
     static var liveValue: BookClient {
         BookClient(
+            // ❓ Q15 [СПІВБЕСІДА]: fetchBook — `async throws`, хоч це лише читання mp3 з бандла.
+            // Навіщо async для синхронної операції? Що змінилося б для реального API?
             fetchBook: {
                 let resources = [
                     "chapterOne", "chapterTwo", "chapterThree", "chapterFour", "chapterFive",
