@@ -1,0 +1,14 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Run unit tests"
+  lane :test do
+    run_tests(
+      scheme: "CodefinityTestTask",
+      project: "CodefinityTestTask.xcodeproj",
+      destination: "platform=iOS Simulator,name=iPhone 17 Pro",
+      clean: true,
+      xcargs: "-skipMacroValidation -skipPackagePluginValidation"
+    )
+  end
+end

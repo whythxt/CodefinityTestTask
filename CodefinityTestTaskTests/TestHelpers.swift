@@ -18,7 +18,7 @@ extension AudioPlayerClient {
             seek: seek,
             setRate: setRate,
             observeProgress: { AsyncStream { $0.finish() } },
-            observeFinish: { AsyncThrowingStream { $0.finish() } }
+            observeFinish: { AsyncStream { $0.finish() } }
         )
     }
 }
